@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AVAC DESING — {% block title %}Sistema{% endblock %}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:       #0d0f14;
+      --surface:  #151820;
+      --card:     #1c2030;
+      --border:   #252a3a;
+      --accent:   #f59e0b;
+      --accent2:  #3b82f6;
+      --danger:   #ef4444;
+      --success:  #22c55e;
+      --warning:  #f59e0b;
+      --text:     #e8eaf2;
+      --muted:    #6b7280;
+      --sidebar-w: 240px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      position: fixed; top: 0; left: 0;
+      width: var(--sidebar-w); height: 100vh;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      z-index: 100;
+    }
+    .sidebar-logo {
+      padding: 24px 20px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-logo .brand {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800; font-size: 18px;
+      color: var(--accent); letter-spacing: 1px;
+    }
+    .sidebar-logo .sub { font-size: 11px; color: var(--muted); margin-top: 2px; letter-spacing: 0.5px; }
+    .sidebar-nav { flex: 1; padding: 16px 0; overflow-y: auto; }
+    .nav-section { padding: 8px 20px 4px; font-size: 10px; font-weight: 600; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 20px; font-size: 14px; font-weight: 400;
+      color: var(--muted); text-decoration: none;
+      transition: all .15s; cursor: pointer; border: none; background: none; width: 100%;
+    }
+    .nav-item .icon { font-size: 16px; width: 20px; text-align: center; }
+    .nav-item:hover { color: var(--text); background: rgba(255,255,255,.04); }
+    .nav-item.active { color: var(--accent); background: rgba(245,158,11,.08); border-right: 2px solid var(--accent); }
+    .sidebar-user {
+      padding: 16px 20px;
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .avatar {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), #d97706);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px; color: #000;
+      flex-shrink: 0;
+    }
+    .user-info .name { font-size: 13px; font-weight: 500; }
+    .user-info .role { font-size: 11px; color: var(--muted); }
+    .badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600;
+    }
+    .badge-danger  { background: rgba(239,68,68,.15);  color: #ef4444; }
+    .badge-success { background: rgba(34,197,94,.15);  color: #22c55e; }
+    .badge-warning { background: rgba(245,158,11,.15); color: #f59e0b; }
+    .badge-info    { background: rgba(59,130,246,.15); color: #3b82f6; }
+    .badge-muted   { background: rgba(107,114,128,.15);color: #9ca3af; }
+
+    /* ── MAIN ── */
+    .main { margin-left: var(--sidebar-w); min-height: 100vh; display: flex; flex-direction: column; }
+    .topbar {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(13,15,20,.85); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px; height: 60px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .topbar-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 16px; border-radius: 8px; font-size: 13px; font-weight: 500;
+      cursor: pointer; border: none; font-family: inherit; transition: all .15s;
+      text-decoration: none;
+    }
+    .btn-primary   { background: var(--accent); color: #000; }
+    .btn-primary:hover { background: #d97706; }
+    .btn-secondary { background: var(--card); color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { background: var(--border); }
+    .btn-danger    { background: rgba(239,68,68,.15); color: #ef4444; border: 1px solid rgba(239,68,68,.3); }
+    .btn-danger:hover { background: rgba(239,68,68,.25); }
+    .btn-sm        { padding: 5px 12px; font-size: 12px; }
+    .content       { flex: 1; padding: 32px; }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; overflow: hidden;
+    }
+    .card-header {
+      padding: 18px 20px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .card-title { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; }
+    .card-body { padding: 20px; }
+
+    /* ── TABLE ── */
+    table { width: 100%; border-collapse: collapse; }
+    th { padding: 10px 14px; text-align: left; font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); }
+    td { padding: 12px 14px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,.04); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,.02); }
+
+    /* ── FORM ── */
+    .form-group { margin-bottom: 16px; }
+    label { display: block; font-size: 12px; font-weight: 500; color: var(--muted); margin-bottom: 6px; letter-spacing: .5px; }
+    input, select, textarea {
+      width: 100%; padding: 9px 13px; border-radius: 8px;
+      background: var(--bg); border: 1px solid var(--border);
+      color: var(--text); font-family: inherit; font-size: 14px;
+      outline: none; transition: border .15s;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--accent2); }
+    select option { background: var(--surface); }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.6); backdrop-filter: blur(4px);
+      display: none; align-items: center; justify-content: center; z-index: 500;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 28px; min-width: 380px; max-width: 500px; width: 100%; }
+    .modal h3 { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; margin-bottom: 20px; }
+
+    /* ── UTILS ── */
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+    .grid4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 20px; }
+    .flex   { display: flex; }
+    .items-center { align-items: center; }
+    .gap-2  { gap: 8px; }
+    .gap-3  { gap: 12px; }
+    .mb-1   { margin-bottom: 4px; }
+    .mb-2   { margin-bottom: 8px; }
+    .mb-4   { margin-bottom: 16px; }
+    .mb-6   { margin-bottom: 24px; }
+    .text-sm { font-size: 12px; }
+    .text-muted { color: var(--muted); }
+    .font-bold { font-weight: 700; }
+    .font-syne { font-family: 'Syne', sans-serif; }
+    .text-accent { color: var(--accent); }
+    .text-danger { color: var(--danger); }
+    .text-success { color: var(--success); }
+
+    /* ── STAT CARD ── */
+    .stat-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+      padding: 20px;
+    }
+    .stat-label { font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+    .stat-value { font-family: 'Syne', sans-serif; font-size: 32px; font-weight: 800; line-height: 1; }
+    .stat-sub   { font-size: 12px; color: var(--muted); margin-top: 6px; }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed; bottom: 24px; right: 24px; z-index: 999;
+      padding: 12px 18px; border-radius: 10px; font-size: 14px; font-weight: 500;
+      background: var(--card); border: 1px solid var(--border);
+      box-shadow: 0 8px 32px rgba(0,0,0,.4);
+      transform: translateY(80px); opacity: 0;
+      transition: all .3s cubic-bezier(.4,0,.2,1);
+      pointer-events: none;
+    }
+    #toast.show { transform: translateY(0); opacity: 1; }
+    #toast.ok   { border-color: var(--success); color: var(--success); }
+    #toast.err  { border-color: var(--danger);  color: var(--danger);  }
+  </style>
+  {% block head %}{% endblock %}
+</head>
+<body>
+
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="brand">AVAC DESING</div>
+    <div class="sub">Sistema de Gestión de Accesos</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Principal</div>
+    <a href="/dashboard" class="nav-item {% if request.path == '/dashboard' %}active{% endif %}">
+      <span class="icon">📊</span> Dashboard
+    </a>
+
+    {% if u and roles[u.rol]['nivel'] >= 3 %}
+    <div class="nav-section">Gestión</div>
+    {% if roles[u.rol]['nivel'] >= 4 %}
+    <a href="/usuarios" class="nav-item {% if request.path == '/usuarios' %}active{% endif %}">
+      <span class="icon">👥</span> Usuarios
+    </a>
+    {% endif %}
+    <a href="/permisos" class="nav-item {% if request.path == '/permisos' %}active{% endif %}">
+      <span class="icon">🔐</span> Permisos
+    </a>
+    <a href="/registro" class="nav-item {% if request.path == '/registro' %}active{% endif %}">
+      <span class="icon">📋</span> Registro
+    </a>
+    {% endif %}
+
+    <div class="nav-section">Acceso</div>
+    <a href="/acceso_especial" class="nav-item {% if request.path == '/acceso_especial' %}active{% endif %}">
+      <span class="icon">🔑</span> Acceso Especial
+    </a>
+  </nav>
+  {% if u %}
+  <div class="sidebar-user">
+    <div class="avatar">{{ u.avatar }}</div>
+    <div class="user-info">
+      <div class="name">{{ u.nombre.split()[0] }}</div>
+      <div class="role">{{ roles[u.rol]['label'] }}</div>
+    </div>
+  </div>
+  {% endif %}
+</aside>
+
+<!-- ── MAIN ── -->
+<div class="main">
+  <header class="topbar">
+    <div class="topbar-title">{% block page_title %}—{% endblock %}</div>
+    <div class="topbar-right">
+      {% if u %}
+      <span class="text-sm text-muted">{{ roles[u.rol]['icon'] }} {{ roles[u.rol]['label'] }}</span>
+      <a href="/logout" class="btn btn-secondary btn-sm">Cerrar sesión</a>
+      {% endif %}
+    </div>
+  </header>
+  <div class="content">
+    {% block content %}{% endblock %}
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+function toast(msg, type='ok') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show ' + type;
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.className = '', 3000);
+}
+function modal(id, open=true) {
+  document.getElementById(id).classList.toggle('open', open);
+}
+async function api(url, data) {
+  const r = await fetch(url, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)});
+  return r.json();
+}
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

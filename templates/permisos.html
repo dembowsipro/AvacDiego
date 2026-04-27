@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block title %}Permisos{% endblock %}
+{% block page_title %}Matriz de Permisos{% endblock %}
+
+{% block content %}
+<div class="grid2 mb-6">
+  <!-- Verificador de acceso -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">🔍 Verificar Acceso</span>
+    </div>
+    <div class="card-body">
+      <div class="form-group">
+        <label>USUARIO</label>
+        <select id="v-uid">
+          {% for usr in usuarios %}
+          <option value="{{ usr.id }}">{{ usr.nombre }} ({{ roles[usr.rol]['label'] }})</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>RECURSO</label>
+        <select id="v-rec">
+          {% for k, rec in recursos.items() %}
+          <option value="{{ k }}">{{ rec['icon'] }} {{ rec['label'] }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button class="btn btn-primary" style="width:100%" onclick="verificar()">Verificar Permiso</button>
+      <div id="v-result" style="margin-top:14px;display:none;"></div>
+    </div>
+  </div>
+
+  <!-- Leyenda de niveles -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">📊 Niveles de Acceso</span>
+    </div>
+    <div class="card-body" style="padding:12px 16px;">
+      {% for k, r in roles.items() %}
+      <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);">
+        <span style="font-size:18px">{{ r['icon'] }}</span>
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:500;">{{ r['label'] }}</div>
+        </div>
+        <div style="display:flex;gap:3px;">
+          {% for i in range(5) %}
+          <div style="width:8px;height:8px;border-radius:2px;
+            background:{% if i < r['nivel'] %}{{ r['color'] }}{% else %}var(--border){% endif %}">
+          </div>
+          {% endfor %}
+        </div>
+        <span style="font-size:12px;color:{{ r['color'] }};font-weight:700;min-width:16px;text-align:center;">{{ r['nivel'] }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- Matriz completa -->
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">📋 Matriz de Accesos</span>
+    <span class="text-sm text-muted">{{ roles|length }} roles × {{ recursos|length }} recursos</span>
+  </div>
+  <div style="overflow-x:auto;">
+    <table>
+      <thead>
+        <tr>
+          <th style="min-width:180px;">Recurso</th>
+          <th>Nivel Req.</th>
+          {% for k, r in roles.items() %}
+          <th style="text-align:center;min-width:100px;">{{ r['icon'] }}<br><span style="font-size:10px">{{ r['label'] }}</span></th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for rk, rec in recursos.items() %}
+        <tr>
+          <td>
+            <div style="font-weight:500">{{ rec['icon'] }} {{ rec['label'] }}</div>
+            <div class="text-sm text-muted">{{ rec['categoria'] }}</div>
+          </td>
+          <td>
+            <span class="badge badge-info">Nivel {{ rec['nivel_req'] }}</span>
+          </td>
+          {% for rolkey, r in roles.items() %}
+          <td style="text-align:center;">
+            {% if tiene_acceso(rolkey, rk) %}
+            <span style="color:var(--success);font-size:16px">✓</span>
+            {% else %}
+            <span style="color:var(--border);font-size:16px">✗</span>
+            {% endif %}
+          </td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function verificar() {
+  const uid = document.getElementById('v-uid').value;
+  const recurso = document.getElementById('v-rec').value;
+  const res = await api('/api/verificar_acceso', {uid: parseInt(uid), recurso});
+  const div = document.getElementById('v-result');
+  div.style.display = 'block';
+  if (res.ok && res.tiene !== undefined) {
+    if (res.tiene) {
+      div.innerHTML = `<div class="badge badge-success" style="padding:10px 14px;font-size:13px;display:block;text-align:center">✓ Acceso Permitido</div>`;
+    } else {
+      div.innerHTML = `<div class="badge badge-danger" style="padding:10px 14px;font-size:13px;display:block;text-align:center">✗ ${res.razon || 'Acceso Denegado'}</div>`;
+      if (res.nivel_usuario !== undefined) {
+        div.innerHTML += `<div class="text-sm text-muted" style="text-align:center;margin-top:6px">
+          Nivel usuario: ${res.nivel_usuario} / Requerido: ${res.nivel_requerido}
+        </div>`;
+      }
+    }
+  } else {
+    div.innerHTML = `<div class="badge badge-danger" style="padding:10px 14px;font-size:13px;display:block;text-align:center">Error: ${res.msg || 'desconocido'}</div>`;
+  }
+}
+</script>
+{% endblock %}

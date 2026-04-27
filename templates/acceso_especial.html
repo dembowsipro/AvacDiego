@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block title %}Acceso Especial{% endblock %}
+{% block page_title %}Acceso Especial{% endblock %}
+
+{% block content %}
+<div class="grid2 mb-6">
+  <!-- Solicitar acceso -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">🔑 Solicitar Acceso Temporal</span>
+    </div>
+    <div class="card-body">
+      <div class="form-group">
+        <label>RECURSO SOLICITADO</label>
+        <select id="s-rec">
+          {% for k, rec in recursos.items() %}
+          <option value="{{ k }}">{{ rec['icon'] }} {{ rec['label'] }} (Nivel {{ rec['nivel_req'] }})</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>MOTIVO</label>
+        <textarea id="s-motivo" rows="3" placeholder="Describe por qué necesitas este acceso..." style="resize:vertical;"></textarea>
+      </div>
+      <div class="form-group">
+        <label>DÍAS SOLICITADOS</label>
+        <input type="number" id="s-dias" value="7" min="1" max="30">
+      </div>
+      <button class="btn btn-primary" style="width:100%" onclick="solicitarAcceso()">Enviar Solicitud</button>
+    </div>
+  </div>
+
+  <!-- Resumen -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">📊 Resumen</span>
+    </div>
+    <div class="card-body">
+      {% set pendientes = solicitudes | selectattr('status','equalto','pendiente') | list %}
+      {% set aprobadas  = solicitudes | selectattr('status','equalto','aprobado')  | list %}
+      {% set rechazadas = solicitudes | selectattr('status','equalto','rechazado') | list %}
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:20px;">
+        <div style="text-align:center;padding:14px;background:rgba(245,158,11,.08);border-radius:10px;border:1px solid rgba(245,158,11,.2);">
+          <div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--accent)">{{ pendientes|length }}</div>
+          <div class="text-sm text-muted">Pendientes</div>
+        </div>
+        <div style="text-align:center;padding:14px;background:rgba(34,197,94,.08);border-radius:10px;border:1px solid rgba(34,197,94,.2);">
+          <div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--success)">{{ aprobadas|length }}</div>
+          <div class="text-sm text-muted">Aprobadas</div>
+        </div>
+        <div style="text-align:center;padding:14px;background:rgba(239,68,68,.08);border-radius:10px;border:1px solid rgba(239,68,68,.2);">
+          <div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--danger)">{{ rechazadas|length }}</div>
+          <div class="text-sm text-muted">Rechazadas</div>
+        </div>
+      </div>
+      <p class="text-sm text-muted">Tu rol actual: <strong style="color:var(--text)">{{ roles[u.rol]['label'] }}</strong> — Nivel {{ roles[u.rol]['nivel'] }}</p>
+      <p class="text-sm text-muted" style="margin-top:6px;">Las solicitudes requieren aprobación de un Jefe de Obra o superior.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Lista de solicitudes -->
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">📋 Solicitudes</span>
+    <span class="text-sm text-muted">{{ solicitudes|length }} en total</span>
+  </div>
+  {% if solicitudes %}
+  <table>
+    <thead>
+      <tr>
+        <th>Solicitante</th>
+        <th>Recurso</th>
+        <th>Motivo</th>
+        <th>Días</th>
+        <th>Fecha</th>
+        <th>Estado</th>
+        {% if roles[u.rol]['nivel'] >= 4 %}<th>Acción</th>{% endif %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in solicitudes|sort(attribute='id', reverse=True) %}
+      <tr id="row-{{ s.id }}">
+        <td>
+          <div style="font-weight:500;font-size:13px">{{ s.solicitante }}</div>
+          <div class="text-sm text-muted">{{ roles[s.rol]['label'] }}</div>
+        </td>
+        <td>
+          {% if s.recurso in recursos %}
+          {{ recursos[s.recurso]['icon'] }} {{ recursos[s.recurso]['label'] }}
+          {% else %}
+          {{ s.recurso }}
+          {% endif %}
+        </td>
+        <td style="max-width:200px;font-size:12px;color:var(--muted)">{{ s.motivo }}</td>
+        <td class="text-sm text-muted">{{ s.dias }}d</td>
+        <td style="font-size:12px;color:var(--muted);white-space:nowrap">{{ s.ts }}</td>
+        <td>
+          {% if s.status == 'pendiente' %}
+          <span class="badge badge-warning">⏳ Pendiente</span>
+          {% elif s.status == 'aprobado' %}
+          <span class="badge badge-success">✓ Aprobado</span>
+          {% else %}
+          <span class="badge badge-danger">✗ Rechazado</span>
+          {% endif %}
+          {% if s.aprobado_por %}
+          <div class="text-sm text-muted" style="margin-top:2px">por {{ s.aprobado_por }}</div>
+          {% endif %}
+        </td>
+        {% if roles[u.rol]['nivel'] >= 4 %}
+        <td>
+          {% if s.status == 'pendiente' %}
+          <div class="flex gap-2">
+            <button class="btn btn-secondary btn-sm" style="color:var(--success);border-color:rgba(34,197,94,.3)"
+              onclick="resolver({{ s.id }}, 'aprobado')">✓ Aprobar</button>
+            <button class="btn btn-danger btn-sm"
+              onclick="resolver({{ s.id }}, 'rechazado')">✗ Rechazar</button>
+          </div>
+          {% else %}
+          <span class="text-sm text-muted">—</span>
+          {% endif %}
+        </td>
+        {% endif %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="card-body" style="text-align:center;padding:40px;color:var(--muted)">
+    No hay solicitudes registradas
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function solicitarAcceso() {
+  const recurso = document.getElementById('s-rec').value;
+  const motivo  = document.getElementById('s-motivo').value.trim();
+  const dias    = document.getElementById('s-dias').value;
+  if (!motivo) { toast('Escribe el motivo de la solicitud', 'err'); return; }
+  const res = await api('/api/solicitar_acceso', {recurso, motivo, dias});
+  if (res.ok) { toast('Solicitud enviada correctamente'); setTimeout(()=>location.reload(), 900); }
+  else toast('Error al enviar solicitud', 'err');
+}
+async function resolver(id, accion) {
+  const res = await api('/api/resolver_acceso', {id, accion});
+  if (res.ok) {
+    toast(accion === 'aprobado' ? 'Solicitud aprobada' : 'Solicitud rechazada');
+    setTimeout(()=>location.reload(), 800);
+  } else toast('Error', 'err');
+}
+</script>
+{% endblock %}

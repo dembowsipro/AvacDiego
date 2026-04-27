@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Stats Row -->
+<div class="grid4 mb-6">
+  <div class="stat-card">
+    <div class="stat-label">Usuarios Activos</div>
+    <div class="stat-value text-success">{{ activos }}</div>
+    <div class="stat-sub">de {{ usuarios|length }} registrados</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Accesos Denegados</div>
+    <div class="stat-value text-danger">{{ denied }}</div>
+    <div class="stat-sub">en el historial total</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Accesos Especiales</div>
+    <div class="stat-value text-accent">{{ esp_pen }}</div>
+    <div class="stat-sub">pendientes de aprobar</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Exportaciones</div>
+    <div class="stat-value" style="color:var(--accent2)">{{ exports }}</div>
+    <div class="stat-sub">registradas en log</div>
+  </div>
+</div>
+
+<div class="grid2">
+  <!-- Actividad Reciente -->
+  <div class="card" style="grid-column: span 2;">
+    <div class="card-header">
+      <span class="card-title">📋 Actividad Reciente</span>
+      <a href="/registro" class="btn btn-secondary btn-sm">Ver todo</a>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Usuario</th>
+          <th>Acción</th>
+          <th>Recurso</th>
+          <th>Fecha</th>
+          <th>IP</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in recents %}
+        <tr>
+          <td>
+            <div class="flex items-center gap-2">
+              <div class="avatar" style="width:28px;height:28px;font-size:10px;border-radius:7px;flex-shrink:0">
+                {{ r.usuario[:2].upper() }}
+              </div>
+              <div>
+                <div style="font-size:13px;font-weight:500">{{ r.usuario }}</div>
+                <div class="text-sm text-muted">{{ roles[r.rol]['label'] }}</div>
+              </div>
+            </div>
+          </td>
+          <td><span style="font-family:monospace;font-size:12px;color:var(--accent2)">{{ r.accion }}</span></td>
+          <td style="font-size:12px;color:var(--muted)">{{ r.recurso }}</td>
+          <td style="font-size:12px;color:var(--muted)">{{ r.ts }}</td>
+          <td style="font-family:monospace;font-size:11px;color:var(--muted)">{{ r.ip }}</td>
+          <td>
+            {% if r.status == 'OK' %}
+            <span class="badge badge-success">✓ OK</span>
+            {% else %}
+            <span class="badge badge-danger">✗ DENEGADO</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Nivel de acceso del usuario actual -->
+<div style="margin-top:20px;" class="grid2">
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">🔐 Mis Permisos</span>
+      <span class="badge badge-info">Nivel {{ roles[u.rol]['nivel'] }}</span>
+    </div>
+    <div class="card-body">
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">
+        {% for k, rec in recursos.items() %}
+        {% if roles[u.rol]['nivel'] >= rec['nivel_req'] %}
+        <span class="badge badge-success" style="padding:5px 10px">{{ rec['icon'] }} {{ rec['label'] }}</span>
+        {% else %}
+        <span class="badge badge-muted" style="padding:5px 10px;opacity:.5">{{ rec['icon'] }} {{ rec['label'] }}</span>
+        {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">👥 Equipo Activo</span>
+    </div>
+    <div class="card-body" style="padding:12px 16px;">
+      {% for usr in usuarios if usr.status == 'activo' %}
+      <div class="flex items-center gap-3" style="padding:8px 0;border-bottom:1px solid var(--border);">
+        <div class="avatar" style="width:32px;height:32px;font-size:11px;border-radius:8px;">{{ usr.avatar }}</div>
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:500;">{{ usr.nombre }}</div>
+          <div class="text-sm text-muted">{{ usr.depto }}</div>
+        </div>
+        <span class="badge" style="font-size:10px;background:rgba(245,158,11,.1);color:var(--accent)">
+          {{ roles[usr.rol]['label'] }}
+        </span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

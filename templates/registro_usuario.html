@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AVAC DESING — Crear Cuenta</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0d0f14; --surface: #151820; --card: #1c2030; --border: #252a3a;
+      --accent: #f59e0b; --text: #e8eaf2; --muted: #6b7280;
+      --success: #22c55e; --danger: #ef4444;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg); color: var(--text);
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden; padding: 24px;
+    }
+    body::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(245,158,11,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(245,158,11,.04) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+    body::after {
+      content: '';
+      position: absolute; top: -200px; left: 50%; transform: translateX(-50%);
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(245,158,11,.10) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .box {
+      position: relative; z-index: 1;
+      width: 100%; max-width: 440px;
+      background: var(--card);
+      border: 1px solid var(--border); border-radius: 20px;
+      padding: 40px 36px;
+      box-shadow: 0 32px 80px rgba(0,0,0,.5);
+    }
+    .logo { text-align: center; margin-bottom: 28px; }
+    .logo .brand {
+      font-family: 'Syne', sans-serif; font-weight: 800; font-size: 24px;
+      color: var(--accent); letter-spacing: 2px;
+    }
+    .logo .sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
+    .logo .page-label {
+      display: inline-block; margin-top: 10px;
+      font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--accent); background: rgba(245,158,11,.1);
+      border: 1px solid rgba(245,158,11,.25); border-radius: 20px;
+      padding: 3px 12px;
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-group { margin-bottom: 16px; }
+    label { display: block; font-size: 11px; font-weight: 600; color: var(--muted); margin-bottom: 6px; letter-spacing: .8px; text-transform: uppercase; }
+    input, select {
+      width: 100%; padding: 10px 13px; border-radius: 10px;
+      background: var(--bg); border: 1px solid var(--border);
+      color: var(--text); font-family: inherit; font-size: 14px;
+      outline: none; transition: border .2s;
+    }
+    input:focus, select:focus { border-color: var(--accent); }
+    select option { background: var(--surface); }
+
+    /* fortaleza contraseña */
+    .strength-bar { height: 3px; border-radius: 2px; margin-top: 6px; background: var(--border); overflow: hidden; }
+    .strength-fill { height: 100%; border-radius: 2px; width: 0%; transition: width .3s, background .3s; }
+    .strength-label { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+    .btn-register {
+      width: 100%; padding: 12px;
+      background: var(--accent); color: #000;
+      border: none; border-radius: 10px;
+      font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700;
+      cursor: pointer; transition: background .2s; margin-top: 4px;
+      letter-spacing: .5px;
+    }
+    .btn-register:hover { background: #d97706; }
+    .btn-register:disabled { opacity: .5; cursor: not-allowed; }
+
+    .alert {
+      border-radius: 10px; padding: 11px 14px; font-size: 13px; margin-bottom: 16px;
+    }
+    .alert-error   { background: rgba(239,68,68,.1);  border: 1px solid rgba(239,68,68,.3);  color: #ef4444; }
+    .alert-success { background: rgba(34,197,94,.1);  border: 1px solid rgba(34,197,94,.3);  color: #22c55e; }
+
+    .back-link {
+      display: block; text-align: center; margin-top: 18px;
+      font-size: 13px; color: var(--muted); text-decoration: none;
+    }
+    .back-link span {
+      color: var(--accent); font-weight: 600;
+      border-bottom: 1px solid rgba(245,158,11,.4); padding-bottom: 1px;
+    }
+    .back-link:hover span { color: #d97706; }
+
+    .note {
+      margin-top: 14px; padding: 10px 14px;
+      background: rgba(59,130,246,.08); border: 1px solid rgba(59,130,246,.2);
+      border-radius: 8px; font-size: 12px; color: #93c5fd;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <div class="logo">
+      <div class="brand">AVAC DESING</div>
+      <div class="sub">Sistema de Gestión de Accesos</div>
+      <div class="page-label">Nueva Cuenta</div>
+    </div>
+
+    {% if error %}
+    <div class="alert alert-error">⚠️ {{ error }}</div>
+    {% endif %}
+
+    {% if success %}
+    <div class="alert alert-success">✓ {{ success }}</div>
+    <a href="/login" class="btn-register" style="display:block;text-align:center;text-decoration:none;padding:12px;">
+      Ir al Login →
+    </a>
+    <a href="/login" class="back-link">← <span>Volver al inicio de sesión</span></a>
+    {% else %}
+
+    <form method="POST" id="reg-form">
+      <div class="form-group">
+        <label>Nombre Completo</label>
+        <input type="text" name="nombre" id="f-nombre" placeholder="Ej: Juan Pérez" required autocomplete="off">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Correo Electrónico</label>
+          <input type="email" name="email" placeholder="juan@avac.com" required>
+        </div>
+        <div class="form-group">
+          <label>Departamento</label>
+          <input type="text" name="depto" placeholder="Ej: Ingeniería" required>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Contraseña</label>
+          <input type="password" name="password" id="f-pw" placeholder="Mínimo 6 caracteres" required oninput="checkStrength(this.value)">
+          <div class="strength-bar"><div class="strength-fill" id="sf"></div></div>
+          <div class="strength-label" id="sl">—</div>
+        </div>
+        <div class="form-group">
+          <label>Confirmar Contraseña</label>
+          <input type="password" name="password2" id="f-pw2" placeholder="Repite la contraseña" required oninput="checkMatch()">
+          <div class="strength-label" id="match-label" style="margin-top:4px"></div>
+        </div>
+      </div>
+
+      <div class="note">
+        ℹ️ Tu cuenta se creará con rol <strong>Obrero</strong>. Un administrador puede asignarte un rol superior.
+      </div>
+
+      <button type="submit" class="btn-register" style="margin-top:16px" id="submit-btn">CREAR CUENTA →</button>
+    </form>
+
+    <a href="/login" class="back-link">← ¿Ya tienes cuenta? <span>Inicia sesión</span></a>
+    {% endif %}
+  </div>
+
+  <script>
+    function checkStrength(pw) {
+      const bar = document.getElementById('sf');
+      const lbl = document.getElementById('sl');
+      let score = 0;
+      if (pw.length >= 6)  score++;
+      if (pw.length >= 10) score++;
+      if (/[A-Z]/.test(pw)) score++;
+      if (/[0-9]/.test(pw)) score++;
+      if (/[^A-Za-z0-9]/.test(pw)) score++;
+      const levels = [
+        {w:'0%',  c:'transparent', t:'—'},
+        {w:'25%', c:'#ef4444',     t:'Muy débil'},
+        {w:'50%', c:'#f59e0b',     t:'Débil'},
+        {w:'75%', c:'#3b82f6',     t:'Buena'},
+        {w:'90%', c:'#22c55e',     t:'Fuerte'},
+        {w:'100%',c:'#22c55e',     t:'Muy fuerte'},
+      ];
+      const l = levels[score] || levels[0];
+      bar.style.width = l.w; bar.style.background = l.c;
+      lbl.textContent = l.t; lbl.style.color = l.c;
+    }
+    function checkMatch() {
+      const pw  = document.getElementById('f-pw').value;
+      const pw2 = document.getElementById('f-pw2').value;
+      const lbl = document.getElementById('match-label');
+      if (!pw2) { lbl.textContent = ''; return; }
+      if (pw === pw2) {
+        lbl.textContent = '✓ Coinciden'; lbl.style.color = '#22c55e';
+      } else {
+        lbl.textContent = '✗ No coinciden'; lbl.style.color = '#ef4444';
+      }
+    }
+  </script>
+</body>
+</html>

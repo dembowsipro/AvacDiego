@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AVAC DESING — Acceso</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0d0f14; --surface: #151820; --card: #1c2030; --border: #252a3a;
+      --accent: #f59e0b; --text: #e8eaf2; --muted: #6b7280;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg); color: var(--text);
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
+    }
+    /* grid background */
+    body::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(245,158,11,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(245,158,11,.04) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+    /* glow */
+    body::after {
+      content: '';
+      position: absolute; top: -200px; left: 50%; transform: translateX(-50%);
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(245,158,11,.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .login-box {
+      position: relative; z-index: 1;
+      width: 100%; max-width: 400px;
+      background: var(--card);
+      border: 1px solid var(--border); border-radius: 20px;
+      padding: 40px 36px;
+      box-shadow: 0 32px 80px rgba(0,0,0,.5);
+    }
+    .logo { text-align: center; margin-bottom: 32px; }
+    .logo .brand {
+      font-family: 'Syne', sans-serif; font-weight: 800; font-size: 26px;
+      color: var(--accent); letter-spacing: 2px;
+    }
+    .logo .sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
+    .form-group { margin-bottom: 18px; }
+    label { display: block; font-size: 12px; font-weight: 500; color: var(--muted); margin-bottom: 6px; letter-spacing: .5px; }
+    input {
+      width: 100%; padding: 11px 14px; border-radius: 10px;
+      background: var(--bg); border: 1px solid var(--border);
+      color: var(--text); font-family: inherit; font-size: 14px;
+      outline: none; transition: border .2s;
+    }
+    input:focus { border-color: var(--accent); }
+    .btn-login {
+      width: 100%; padding: 12px;
+      background: var(--accent); color: #000;
+      border: none; border-radius: 10px;
+      font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700;
+      cursor: pointer; transition: background .2s; margin-top: 8px;
+      letter-spacing: .5px;
+    }
+    .btn-login:hover { background: #d97706; }
+    .error {
+      background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.3);
+      color: #ef4444; border-radius: 8px; padding: 10px 14px;
+      font-size: 13px; margin-bottom: 16px;
+    }
+    .hint { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); }
+    .hint-title { font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+    .hint-row { font-size: 12px; color: var(--muted); padding: 4px 0; display: flex; justify-content: space-between; }
+    .hint-row span { color: var(--text); font-family: monospace; }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <div class="logo">
+      <div class="brand">AVAC DESING</div>
+      <div class="sub">Sistema de Gestión de Accesos</div>
+    </div>
+    {% if error %}
+    <div class="error">⚠️ {{ error }}</div>
+    {% endif %}
+    <form method="POST">
+      <div class="form-group">
+        <label>CORREO ELECTRÓNICO</label>
+        <input type="email" name="email" placeholder="usuario@avac.com" required autofocus>
+      </div>
+      <div class="form-group">
+        <label>CONTRASEÑA</label>
+        <input type="password" name="password" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="btn-login">INGRESAR →</button>
+      <div style="text-align:center;margin-top:14px;">
+        <span style="font-size:13px;color:var(--muted)">¿No tienes cuenta? </span>
+        <a href="/registro_usuario" 
+           style="font-size:13px;color:var(--accent);font-weight:600;text-decoration:none;
+                  border-bottom:1px solid rgba(245,158,11,.4);padding-bottom:1px;
+                  transition:color .2s;"
+           onmouseover="this.style.color='#d97706'" onmouseout="this.style.color='var(--accent)'">
+          Regístrate aquí
+        </a>
+      </div>
+    </form>
+    <div class="hint">
+      <div class="hint-title">Cuentas de prueba</div>
+      <div class="hint-row">carlos@avac.com <span>admin123</span></div>
+      <div class="hint-row">ana@avac.com <span>pass123</span></div>
+      <div class="hint-row">pedro@avac.com <span>pass123</span></div>
+    </div>
+  </div>
+</body>
+</html>
